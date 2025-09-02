@@ -19,7 +19,7 @@ A userscript that allows you to quickly copy webpage titles and URLs in Markdown
    - [Greasemonkey](https://www.greasespot.net/) (Firefox)
 
 2. Install the script from one of these sources:
-   - [Install directly from this repository](copy-markdown-title-alt-c.user.js)
+   - [Install directly from this repository](https://raw.githubusercontent.com/snomiao/copy-markdown-title-alt-c.user.js/main/copy-markdown-title-alt-c.user.js)
    - Or copy the script content and create a new userscript in your manager
 
 ## Usage
