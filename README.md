@@ -12,9 +12,10 @@ A userscript that allows you to quickly copy webpage titles and URLs in Markdown
 ## Installation
 
 1. Install a userscript manager extension:
+   - [ScriptCat](https://docs.scriptcat.org/) (Chrome, Firefox, Edge) **(Recommended)**
+   - [Violentmonkey](https://violentmonkey.github.io/) (Chrome, Firefox, Edge) **(Recommended)**
    - [Tampermonkey](https://www.tampermonkey.net/) (Chrome, Firefox, Safari, Edge)
    - [Greasemonkey](https://www.greasespot.net/) (Firefox)
-   - [Violentmonkey](https://violentmonkey.github.io/) (Chrome, Firefox, Edge)
 
 2. Install the script from one of these sources:
    - [Install directly from this repository](copy-markdown-title-alt-c.user.js)

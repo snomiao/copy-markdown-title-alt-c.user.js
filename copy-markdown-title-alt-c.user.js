@@ -13,115 +13,174 @@
 // @description:fr  Appuyez sur Alt+C pour copier le titre et l'URL comme lien au format Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
 // @description:ru  Нажмите Alt+C для копирования заголовка и URL как ссылки в формате Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
 // @namespace       https://userscript.snomiao.com/
-// @version         0.8.4
+// @version         0.8.5
 // @author          snomiao@gmail.com
 // @match           *://*/*
 // @grant           none
 // ==/UserScript==
 
-"use strict";
-(() => {
-    // ../node_modules/hotkey-mapper/dist/index.mjs
-    var { keys } = Object;
-    function mapObject(fn, obj) {
-        if (arguments.length === 1) {
-            return (_obj) => mapObject(fn, _obj);
+(function() {
+    'use strict';
+
+    // Initialize the script
+    function init() {
+        // Store cleanup function globally to allow re-initialization
+        if (window.copyMarkdownQuoteCleanup) {
+            window.copyMarkdownQuoteCleanup();
         }
-        let index = 0;
-        const objKeys = keys(obj);
-        const len = objKeys.length;
-        const willReturn = {};
-        while (index < len) {
-            const key = objKeys[index];
-            willReturn[key] = fn(
-                obj[key],
-                key,
-                obj
-            );
-            index++;
-        }
-        return willReturn;
+
+        // Register the Alt+C hotkey
+        window.copyMarkdownQuoteCleanup = registerHotkey('Alt+C', handleCopyMarkdown);
     }
-    var mapObjIndexed = mapObject;
-    function hotkeyMapper(mapping, options) {
-        const handler = (event) => {
-            if (!event.key)
-                throw new Error("Invalid KeyboardEvent");
-            if (!event.code)
-                throw new Error("Invalid KeyboardEvent");
-            const key = event.key?.toLowerCase();
-            const code = event.code?.toLowerCase();
-            const simp = event.code?.replace(/^(?:Key|Digit|Numpad)/, "").toLowerCase();
-            const map = new Proxy(event, {
-                get: (target2, p) => Boolean(
-                    {
-                        [`${key}Key`]: true,
-                        [`${code}Key`]: true,
-                        [`${simp}Key`]: true
-                    }[p] ?? target2[p]
-                )
-            });
-            const mods = "meta+alt+shift+ctrl";
-            mapObjIndexed((fn, hotkey) => {
-                const conds = `${mods}+${hotkey.toLowerCase()}`.replace(/win|command|search/, "meta").replace(/control/, "ctrl").split("+").map((key2) => key2.toLowerCase().trim()).map((k, i) => [k, i >= 4 === map[`${k}Key`]]);
-                if (!Object.entries(Object.fromEntries(conds)).every(([, ok]) => ok))
-                    return;
-                event.stopPropagation?.();
-                event.preventDefault?.();
-                return fn(event);
-            }, mapping);
-        };
-        const target = options?.target ?? globalThis;
-        target.addEventListener(options?.on ?? "keydown", handler, options);
-        return function unload() {
-            target.removeEventListener(options?.on ?? "keydown", handler, options);
+
+    // Register a hotkey combination
+    function registerHotkey(combination, callback) {
+        const normalizedCombo = normalizeHotkeyCombination(combination);
+        
+        function keydownHandler(event) {
+            if (isHotkeyMatch(event, normalizedCombo)) {
+                event.preventDefault();
+                event.stopPropagation();
+                callback(event);
+            }
+        }
+
+        document.addEventListener('keydown', keydownHandler, true);
+
+        // Return cleanup function
+        return function cleanup() {
+            document.removeEventListener('keydown', keydownHandler, true);
         };
     }
 
-    // ../node_modules/.pnpm/clipboardy@3.0.0/node_modules/clipboardy/browser.js
-    var clipboard = {};
-    clipboard.write = async (text) => {
-        await navigator.clipboard.writeText(text);
-    };
-    clipboard.read = async () => navigator.clipboard.readText();
-    clipboard.readSync = () => {
-        throw new Error("`.readSync()` is not supported in browsers!");
-    };
-    clipboard.writeSync = () => {
-        throw new Error("`.writeSync()` is not supported in browsers!");
-    };
-    var browser_default = clipboard;
+    // Normalize hotkey combination string
+    function normalizeHotkeyCombination(combo) {
+        const parts = combo.toLowerCase().split('+').map(s => s.trim());
+        const modifiers = {
+            ctrl: false,
+            alt: false,
+            shift: false,
+            meta: false
+        };
+        let key = '';
 
-    // ../ts/CopyMarkdownQuote.user.ts
-    {
-        main();
-    }
-    function main() {
-        globalThis.cmqa ||= {};
-        globalThis.cmqa.unload?.();
-        globalThis.cmqa.unload = hotkeyMapper({
-            "alt+c": async (e) => {
-                e.preventDefault?.();
-                e.stopPropagation?.();
-                const selected = window?.getSelection()?.toString().trim() || "";
-                const quoted = selected && selected.replace(/.*/g, (s) => `> ${s}`);
-                const href = location.href;
-                const content = `- [${longestTitleGet()?.replace(
-                    /([|])/,
-                    (e2) => "\\" + e2
-                )}]( ${href} )
-${quoted}`.trim();
-                await browser_default.write(content);
-                alert(`copied: 
-${content}`);
+        parts.forEach(part => {
+            switch(part) {
+                case 'ctrl':
+                case 'control':
+                    modifiers.ctrl = true;
+                    break;
+                case 'alt':
+                    modifiers.alt = true;
+                    break;
+                case 'shift':
+                    modifiers.shift = true;
+                    break;
+                case 'meta':
+                case 'cmd':
+                case 'command':
+                case 'win':
+                case 'windows':
+                    modifiers.meta = true;
+                    break;
+                default:
+                    key = part;
             }
         });
+
+        return { modifiers, key };
     }
-    function longestTitleGet() {
-        const LongestTitle = [
+
+    // Check if keyboard event matches the hotkey combination
+    function isHotkeyMatch(event, combo) {
+        const keyMatches = event.key.toLowerCase() === combo.key.toLowerCase();
+        const modifiersMatch = 
+            event.ctrlKey === combo.modifiers.ctrl &&
+            event.altKey === combo.modifiers.alt &&
+            event.shiftKey === combo.modifiers.shift &&
+            event.metaKey === combo.modifiers.meta;
+
+        return keyMatches && modifiersMatch;
+    }
+
+    // Handle the copy markdown action
+    async function handleCopyMarkdown() {
+        try {
+            // Get selected text if any
+            const selectedText = window.getSelection().toString().trim();
+            
+            // Format selected text as markdown quote
+            const quotedText = selectedText ? 
+                selectedText.split('\n').map(line => `> ${line}`).join('\n') : 
+                '';
+
+            // Get the best title for the page
+            const title = getBestPageTitle();
+            
+            // Escape special markdown characters in title
+            const escapedTitle = title.replace(/([[\]|])/g, '\\$1');
+            
+            // Get current URL
+            const url = window.location.href;
+
+            // Build the markdown content
+            const markdownContent = quotedText ? 
+                `- [${escapedTitle}]( ${url} )\n${quotedText}` :
+                `- [${escapedTitle}]( ${url} )`;
+
+            // Copy to clipboard
+            await copyToClipboard(markdownContent);
+
+            // Show success notification
+            showNotification(`Copied:\n${markdownContent}`);
+
+        } catch (error) {
+            console.error('Failed to copy markdown:', error);
+            showNotification('Failed to copy to clipboard. Please check permissions.');
+        }
+    }
+
+    // Get the best title for the current page
+    function getBestPageTitle() {
+        const candidates = [
             document.title,
-            document.querySelector("h1")?.innerText || ""
-        ].map((str) => str.replace(/\r?\n.*/g, "")).sort((a, b) => a.length - b.length).pop();
-        return LongestTitle;
+            document.querySelector('h1')?.innerText || ''
+        ];
+
+        // Clean up titles (remove line breaks)
+        const cleanedCandidates = candidates.map(title => 
+            title.replace(/\r?\n.*/g, '').trim()
+        );
+
+        // Return the longest title (usually more descriptive)
+        return cleanedCandidates.sort((a, b) => b.length - a.length)[0] || 'Untitled';
     }
+
+    // Copy text to clipboard
+    async function copyToClipboard(text) {
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+    }
+
+    // Show notification to user
+    function showNotification(message) {
+        // Use alert for simple notification
+        // Could be enhanced with a custom toast notification in the future
+        alert(message);
+    }
+
+    // Start the script
+    init();
 })();
