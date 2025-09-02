@@ -2,8 +2,16 @@
 // @name            Copy Markdown Quote Alt+C
 // @name:zh         Alt+C 复制Markdown格式标题和地址快速分享
 // @name:en         Alt+C Copy Title and Link as Markdown Style
+// @name:ar         Alt+C نسخ العنوان والرابط بتنسيق Markdown
+// @name:es         Alt+C Copiar Título y Enlace en Formato Markdown
+// @name:fr         Alt+C Copier le Titre et le Lien au Format Markdown
+// @name:ru         Alt+C Копировать Заголовок и Ссылку в Формате Markdown
 // @description     Press Alt+C to copy title and url as markdown style link `> ${SELECTION} [${TITLE}]( ${URL} )`
 // @description:zh  按 Alt+C 复制 Markdown 格式的链接 `> ${SELECTION} [${TITLE}]( ${URL} )`
+// @description:ar  اضغط Alt+C لنسخ العنوان والرابط بتنسيق Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
+// @description:es  Presiona Alt+C para copiar título y URL como enlace en formato Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
+// @description:fr  Appuyez sur Alt+C pour copier le titre et l'URL comme lien au format Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
+// @description:ru  Нажмите Alt+C для копирования заголовка и URL как ссылки в формате Markdown `> ${SELECTION} [${TITLE}]( ${URL} )`
 // @namespace       https://userscript.snomiao.com/
 // @version         0.8.4
 // @author          snomiao@gmail.com
