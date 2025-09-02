@@ -15,6 +15,8 @@
 // @namespace       https://userscript.snomiao.com/
 // @version         0.8.5
 // @author          snomiao@gmail.com
+// @supportURL      https://github.com/snomiao/copy-markdown-title-alt-c.user.js
+// @homepageURL     https://github.com/snomiao/copy-markdown-title-alt-c.user.js
 // @match           *://*/*
 // @grant           none
 // ==/UserScript==

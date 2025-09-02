@@ -12,6 +12,7 @@ A userscript that allows you to quickly copy webpage titles and URLs in Markdown
 ## Installation
 
 1. Install a userscript manager extension:
+
    - [ScriptCat](https://docs.scriptcat.org/) (Chrome, Firefox, Edge) **(Recommended)**
    - [Violentmonkey](https://violentmonkey.github.io/) (Chrome, Firefox, Edge) **(Recommended)**
    - [Tampermonkey](https://www.tampermonkey.net/) (Chrome, Firefox, Safari, Edge)
@@ -31,14 +32,16 @@ A userscript that allows you to quickly copy webpage titles and URLs in Markdown
 ### Output Format
 
 Without selection:
+
 ```markdown
-- [Page Title]( https://example.com )
+- [Page Title](https://example.com)
 ```
 
 With text selection:
+
 ```markdown
-- [Page Title]( https://example.com )
-> Selected text here
+- [Page Title](https://example.com)
+  > Selected text here
 ```
 
 ## Example
@@ -46,13 +49,14 @@ With text selection:
 When you press Alt+C on a GitHub repository page with some text selected, you'll get:
 
 ```markdown
-- [GitHub - username/repository]( https://github.com/username/repository )
-> This is the selected text from the page
+- [GitHub - username/repository](https://github.com/username/repository)
+  > This is the selected text from the page
 ```
 
 ## Browser Compatibility
 
 Works on all modern browsers that support:
+
 - Clipboard API
 - Userscript managers
 
